@@ -58,13 +58,15 @@ def uploaded_chest():
    image = np.array(image) / 255
    image = np.expand_dims(image, axis=0)
    
-   resnet_pred = resnet_chest.predict(image)
-   probability = resnet_pred[0]
-   print("Resnet Predictions:")
-   resnet_chest_pred = str('%.2f' % (probability[0]*100) + '% COVID') 
-   print(resnet_chest_pred)
 
-   return render_template('results_chest.html',resnet_chest_pred=resnet_chest_pred)
+   resnet_pred = resnet_chest.predict_classes(image)
+   print(resnet_pred)
+
+   if resnet_pred == 0:
+      pred = "You have a 95 percent chance of having Covid, please get yourself tested!"
+   else:
+      pred = "You have less than 5 percent chance of having Covid, yay!"
+   return render_template('results_chest.html',resnet_chest_pred=pred)
 
 if __name__ == '__main__':
    app.secret_key = ".."
