@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 import os
 from werkzeug.utils import secure_filename
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
@@ -50,7 +50,7 @@ def uploaded_chest():
             # filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'upload_chest.jpg'))
 
-   resnet_chest = load_model('./models/resnet_chest.h5')
+   resnet_chest = load_model('models/resnet_chest.h5 ', compile=False)
 
    image = cv2.imread('./flask app/assets/images/upload_chest.jpg') # read file 
    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # arrange format as per keras
@@ -61,10 +61,7 @@ def uploaded_chest():
    resnet_pred = resnet_chest.predict(image)
    probability = resnet_pred[0]
    print("Resnet Predictions:")
-   if probability[0] > 0.5:
-      resnet_chest_pred = str('%.2f' % (probability[0]*100) + '% COVID') 
-   else:
-      resnet_chest_pred = str('%.2f' % ((1-probability[0])*100) + '% NonCOVID')
+   resnet_chest_pred = str('%.2f' % (probability[0]*100) + '% COVID') 
    print(resnet_chest_pred)
 
    return render_template('results_chest.html',resnet_chest_pred=resnet_chest_pred)
