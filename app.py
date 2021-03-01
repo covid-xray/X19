@@ -1,11 +1,10 @@
 
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import Flask, render_template, request, session, redirect, url_for, flash, re
 import os
 from werkzeug.utils import secure_filename
 from tensorflow.keras.models import load_model
 import matplotlib.pyplot as plt
 import cv2
-from tensorflow.keras.models import load_model
 import numpy as np
 
 UPLOAD_FOLDER = './flask app/assets/images'
