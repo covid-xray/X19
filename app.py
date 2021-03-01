@@ -50,7 +50,7 @@ def uploaded_chest():
             # filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'upload_chest.jpg'))
 
-   resnet_chest = load_model('models/resnet_chest.h5')
+   resnet_chest = load_model('./models/resnet_chest.h5')
 
    image = cv2.imread('./flask app/assets/images/upload_chest.jpg') # read file 
    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # arrange format as per keras
@@ -69,7 +69,6 @@ def uploaded_chest():
 
    return render_template('results_chest.html',resnet_chest_pred=resnet_chest_pred)
 
-
 if __name__ == '__main__':
    app.secret_key = ".."
-   app.run()
+   app.run(debug=True)
