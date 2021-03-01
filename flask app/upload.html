@@ -3,11 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-    <title>COVID-19 Detector</title>
-
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1&display=swap" rel="stylesheet">
+    <title>X-19</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <style type="text/css">
         input[type="file"] {
             display: none;
@@ -20,25 +23,144 @@
         }
     </style>
 </head>
+<style>
+    * {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    /* navbar */
+    header {
+        font-size: 20px;
+        padding: 5vh 10vw;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+        background-color: rgb(247 230 237);
+
+    }
+
+    header a {
+        text-decoration: none;
+        color: rgb(36, 34, 34);
+    }
+
+    header a:hover {
+        text-decoration: none;
+        color: rgb(66, 116, 83);
+    }
+
+    header a.x19 {
+        color: rgb(14, 37, 168);
+        font-size: larger;
+    }
+
+    /* body */
+
+    div.main {
+
+        padding: 0px 15vw;
+        margin-top: 20vh;
+        font-size: 15px;
+        font-family: 'Shippori Mincho B1', serif;
+    }
+
+    div.main p {
+
+        font-size: 20px;
+        font-weight: bold;
+        font-family: 'Shippori Mincho B1', serif;
+    }
+
+    div.main p.head {
+
+        font-size: 35px;
+        font-family: 'Shippori Mincho B1', serif;
+    }
+
+    div.main p.head span {
+
+        font-size: 40px;
+        font-family: 'Shippori Mincho B1', serif;
+    }
+
+    div.test a {
+        text-decoration: none;
+        font-family: 'Shippori Mincho B1';
+        font-size: 35px;
+        color: crimson;
+    }
+
+    .header div {
+        z-index: 2;
+    }
+
+    .header img {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 450px;
+        opacity: 0.2;
+        object-fit: cover;
+    }
+</style>
 
 <body>
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-danger">
+        <div style="font-size: 25px;" class="container py-2">
+            <a style="font-size: 25px;" class="navbar-brand" href="index.html">X-19</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="upload.html">Test Yourself</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <a href="index.html">Home</a>
-    <a href="upload.html">Upload here</a>
 
-    <div class="container">
-            <h3>Upload Image </h3>
-            <br>
-            <p style="font-size: 25px;">Please select the type of image you want to diagnose</p>
 
-        <form action="/uploaded_chest" method="post" enctype="multipart/form-data">
-            <label for="file-upload_1" id="label_1" class="custom-file-upload btn btn-primary" style="margin-top: 8px; margin-right: 10px;">
-                Select Image
-            </label>
-            <input type="file" name="file" id="file-upload_1" onchange="showname()"/>
-            <input type="submit" value="Upload" class="btn btn-success">
-        </form>
+    <div class="row header">
+        <div style="opacity: 1!important;" class="main">
+            <p class="head">
+                <span>X-19:</span>
+                Check your Covid-19 status in just a few steps :
+            </p>
+            <p class="body">
+                <br>
 
+                1.   Click on select image and upload a jpg/jpeg file of your AP chest X-Ray.
+                <br>
+                2.   Click on the upload image button and you will be redirected to your personalised result.
+                <br>
+                3.   You will have received a high probability diagnosis, please contact your medical practitioner for
+                further advice.
+            </p>
+            <div style="font-weight: bolder;"class="pb-4 pt-2 row justify-content-evenly">
+                <form action="/uploaded_chest" method="post" enctype="multipart/form-data">
+                    <label for="file-upload_1" id="label_1" class="custom-file-upload btn btn-danger">
+                        Select Image
+                    </label>
+                    <input type="file" name="file" id="file-upload_1" onchange="showname()" />
+                    <input type="submit" value="Upload" class="btn btn-outline-danger">
+                </form>
+            </div>
+
+        </div>
+        <img src="https://flyernews.com/wp-content/uploads/2020/08/covid-19-4996393_960_720.png">
+    </div>
+    
+    <div class="row position-relative justify-itmes-center my-4">
+        <img style="width: 75%; height: auto; margin-top: 20vh; padding-left: 25%;"  src="assets/images/x-home.jpeg" alt="image loading">
     </div>
 
     <script type="text/javascript">
@@ -52,7 +174,4 @@
             document.getElementById('label_2').innerHTML = name_2.files.item(0).name;
         };
     </script>
-
 </body>
-
-</html>
