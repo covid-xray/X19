@@ -1,0 +1,446 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import keras\n",
+    "from keras.layers import *\n",
+    "from keras.models import * \n",
+    "from keras.preprocessing import image"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#  Model deployment"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Defining paths\n",
+    "TRAIN_PATH = \"CovidDataset/Train\"\n",
+    "VAL_PATH = \"CovidDataset/Test\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Training model\n",
+    "model = Sequential()\n",
+    "model.add(Conv2D(32,kernel_size=(3,3),activation='relu',input_shape=(224,224,3)))\n",
+    "model.add(Conv2D(128,(3,3),activation='relu'))\n",
+    "model.add(MaxPooling2D(pool_size=(2,2)))\n",
+    "model.add(Dropout(0.25))\n",
+    "\n",
+    "model.add(Conv2D(64,(3,3),activation='relu'))\n",
+    "model.add(MaxPooling2D(pool_size=(2,2)))\n",
+    "model.add(Dropout(0.25))\n",
+    "\n",
+    "model.add(Conv2D(128,(3,3),activation='relu'))\n",
+    "model.add(MaxPooling2D(pool_size=(2,2)))\n",
+    "model.add(Dropout(0.25))\n",
+    "\n",
+    "model.add(Flatten())\n",
+    "model.add(Dense(64,activation='relu'))\n",
+    "model.add(Dropout(0.5))\n",
+    "model.add(Dense(1,activation='sigmoid'))\n",
+    "\n",
+    "model.compile(loss=keras.losses.binary_crossentropy,optimizer='adam',metrics=['accuracy'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Model: \"sequential_3\"\n",
+      "_________________________________________________________________\n",
+      "Layer (type)                 Output Shape              Param #   \n",
+      "=================================================================\n",
+      "conv2d_9 (Conv2D)            (None, 222, 222, 32)      896       \n",
+      "_________________________________________________________________\n",
+      "conv2d_10 (Conv2D)           (None, 220, 220, 128)     36992     \n",
+      "_________________________________________________________________\n",
+      "max_pooling2d_7 (MaxPooling2 (None, 110, 110, 128)     0         \n",
+      "_________________________________________________________________\n",
+      "dropout_9 (Dropout)          (None, 110, 110, 128)     0         \n",
+      "_________________________________________________________________\n",
+      "conv2d_11 (Conv2D)           (None, 108, 108, 64)      73792     \n",
+      "_________________________________________________________________\n",
+      "max_pooling2d_8 (MaxPooling2 (None, 54, 54, 64)        0         \n",
+      "_________________________________________________________________\n",
+      "dropout_10 (Dropout)         (None, 54, 54, 64)        0         \n",
+      "_________________________________________________________________\n",
+      "conv2d_12 (Conv2D)           (None, 52, 52, 128)       73856     \n",
+      "_________________________________________________________________\n",
+      "max_pooling2d_9 (MaxPooling2 (None, 26, 26, 128)       0         \n",
+      "_________________________________________________________________\n",
+      "dropout_11 (Dropout)         (None, 26, 26, 128)       0         \n",
+      "_________________________________________________________________\n",
+      "flatten_3 (Flatten)          (None, 86528)             0         \n",
+      "_________________________________________________________________\n",
+      "dense_5 (Dense)              (None, 64)                5537856   \n",
+      "_________________________________________________________________\n",
+      "dropout_12 (Dropout)         (None, 64)                0         \n",
+      "_________________________________________________________________\n",
+      "dense_6 (Dense)              (None, 1)                 65        \n",
+      "=================================================================\n",
+      "Total params: 5,723,457\n",
+      "Trainable params: 5,723,457\n",
+      "Non-trainable params: 0\n",
+      "_________________________________________________________________\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Getting parameters\n",
+    "model.summary()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Training data "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Moulding train images\n",
+    "train_datagen = image.ImageDataGenerator(rescale = 1./255, shear_range = 0.2,zoom_range = 0.2, horizontal_flip = True)\n",
+    "\n",
+    "test_dataset = image.ImageDataGenerator(rescale=1./255)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Found 224 images belonging to 2 classes.\n",
+      "Found 60 images belonging to 2 classes.\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Reshaping test and validation images \n",
+    "train_generator = train_datagen.flow_from_directory(\n",
+    "    'CovidDataset/Train',\n",
+    "    target_size = (224,224),\n",
+    "    batch_size = 32,\n",
+    "    class_mode = 'binary')\n",
+    "validation_generator = test_dataset.flow_from_directory(\n",
+    "    'CovidDataset/Val',\n",
+    "    target_size = (224,224),\n",
+    "    batch_size = 32,\n",
+    "    class_mode = 'binary')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Epoch 1/10\n",
+      "6/6 [==============================] - 85s 14s/step - loss: 0.6311 - accuracy: 0.6615 - val_loss: 0.5973 - val_accuracy: 0.9167\n",
+      "Epoch 2/10\n",
+      "6/6 [==============================] - 96s 17s/step - loss: 0.4795 - accuracy: 0.7604 - val_loss: 0.4612 - val_accuracy: 0.7500\n",
+      "Epoch 3/10\n",
+      "6/6 [==============================] - 99s 16s/step - loss: 0.4587 - accuracy: 0.7760 - val_loss: 0.3384 - val_accuracy: 0.9333\n",
+      "Epoch 4/10\n",
+      "6/6 [==============================] - 107s 18s/step - loss: 0.3778 - accuracy: 0.8333 - val_loss: 0.3686 - val_accuracy: 0.9333\n",
+      "Epoch 5/10\n",
+      "6/6 [==============================] - 99s 17s/step - loss: 0.3215 - accuracy: 0.8646 - val_loss: 0.1419 - val_accuracy: 0.9667\n",
+      "Epoch 6/10\n",
+      "6/6 [==============================] - 105s 17s/step - loss: 0.2811 - accuracy: 0.8906 - val_loss: 0.3429 - val_accuracy: 0.9667\n",
+      "Epoch 7/10\n",
+      "6/6 [==============================] - 87s 14s/step - loss: 0.2259 - accuracy: 0.9271 - val_loss: 0.1152 - val_accuracy: 0.9667\n",
+      "Epoch 8/10\n",
+      "6/6 [==============================] - 107s 19s/step - loss: 0.2214 - accuracy: 0.9167 - val_loss: 0.1381 - val_accuracy: 0.9500\n",
+      "Epoch 9/10\n",
+      "6/6 [==============================] - 81s 13s/step - loss: 0.1448 - accuracy: 0.9479 - val_loss: 0.0921 - val_accuracy: 0.9833\n",
+      "Epoch 10/10\n",
+      "6/6 [==============================] - 83s 14s/step - loss: 0.1526 - accuracy: 0.9427 - val_loss: 0.0738 - val_accuracy: 0.9667\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Training the model\n",
+    "hist_new = model.fit_generator(\n",
+    "    train_generator,\n",
+    "    steps_per_epoch=6,\n",
+    "    epochs = 10,\n",
+    "    validation_data = validation_generator,\n",
+    "    validation_steps=2\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'loss': [0.5846718549728394], 'accuracy': [0.7053571343421936], 'val_loss': [0.5483590364456177], 'val_accuracy': [0.78125]}\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Getting summary\n",
+    "summary=hist.history\n",
+    "print(summary)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "model.save(\"model_covid.h5\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[0.10660960525274277, 0.9642857313156128]"
+      ]
+     },
+     "execution_count": 33,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "model.evaluate_generator(train_generator)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/Users/aarushigajri/opt/anaconda3/lib/python3.8/site-packages/tensorflow/python/keras/engine/training.py:1877: UserWarning: `Model.evaluate_generator` is deprecated and will be removed in a future version. Please use `Model.evaluate`, which supports generators.\n",
+      "  warnings.warn('`Model.evaluate_generator` is deprecated and '\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0.07383514195680618, 0.9666666388511658]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(model.evaluate_generator(validation_generator))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Confusion Matrix"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'Covid': 0, 'Normal': 1}"
+      ]
+     },
+     "execution_count": 35,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import os\n",
+    "train_generator.class_indices"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_actual, y_test = [],[]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/Users/aarushigajri/opt/anaconda3/lib/python3.8/site-packages/tensorflow/python/keras/engine/sequential.py:450: UserWarning: `model.predict_classes()` is deprecated and will be removed after 2021-01-01. Please use instead:* `np.argmax(model.predict(x), axis=-1)`,   if your model does multi-class classification   (e.g. if it uses a `softmax` last-layer activation).* `(model.predict(x) > 0.5).astype(\"int32\")`,   if your model does binary classification   (e.g. if it uses a `sigmoid` last-layer activation).\n",
+      "  warnings.warn('`model.predict_classes()` is deprecated and '\n"
+     ]
+    }
+   ],
+   "source": [
+    "for i in os.listdir(\"./CovidDataset/Val/Normal/\"):\n",
+    "    img=image.load_img(\"./CovidDataset/Val/Normal/\"+i,target_size=(224,224))\n",
+    "    img=image.img_to_array(img)\n",
+    "    img=np.expand_dims(img,axis=0)\n",
+    "    pred=model.predict_classes(img)\n",
+    "    y_test.append(pred[0,0])\n",
+    "    y_actual.append(1)\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in os.listdir(\"./CovidDataset/Val/Covid/\"):\n",
+    "    img=image.load_img(\"./CovidDataset/Val/Covid/\"+i,target_size=(224,224))\n",
+    "    img=image.img_to_array(img)\n",
+    "    img=np.expand_dims(img,axis=0)\n",
+    "    pred=model.predict_classes(img)\n",
+    "    y_test.append(pred[0,0])\n",
+    "    y_actual.append(0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_actual=np.array(y_actual)\n",
+    "y_test=np.array(y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.metrics import confusion_matrix\n",
+    "import seaborn as sns\n",
+    "cn=confusion_matrix(y_actual,y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<AxesSubplot:>"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 2 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "sns.heatmap(cn,cmap=\"plasma\",annot=True) #0: Covid ; 1: Normal"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
